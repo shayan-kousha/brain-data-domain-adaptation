@@ -11,10 +11,10 @@ from datetime import datetime
 from sklearn.metrics import cohen_kappa_score
 from mne import Epochs, pick_types, find_events
 from mne.io import concatenate_raws, read_raw_edf, Raw, find_edf_events
+from scipy.io import matlab
 import matplotlib.pyplot as plt
 
 def load_data(file_path):
-    file_path = "../data/BCICIV_2a_gdf/A09T.gdf"
     tmin, tmax = -1., 4.
     event_id = dict(left_hand=769, right_hand=770, both_feet=771, tongue=772)
     raw = read_raw_edf(file_path, eog= [22, 23, 24], stim_channel="auto")
@@ -61,11 +61,11 @@ def brain_model(features, num_classes=4):
     
     return logits
 
-def train_loop(file_path="../data/BCICIV_2a_gdf/A01T.gdf"):
+def train_loop(file_path):
     data, labels = load_data(file_path)
     data *= 10**6
     
-    epoch_number = 100
+    epoch_number = 10
     batch_size = 96
     num_batches = 3
     
@@ -85,6 +85,13 @@ def train_loop(file_path="../data/BCICIV_2a_gdf/A01T.gdf"):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
          
+        saver = tf.train.Saver()
+        
+        try:
+            saver.restore(sess, "../checkpoints/model_epoch_9.ckpt")
+        except Exception as e:
+            print (e)
+            
         print("{} Start training...".format(datetime.now()))
 
         for epoch in range(0, epoch_number):
@@ -98,12 +105,12 @@ def train_loop(file_path="../data/BCICIV_2a_gdf/A01T.gdf"):
                 all_loss.append(ret_loss)
                 
             print("Epoch {}, Loss {:.6f}, Kappa {}".format(epoch, np.mean(all_loss), cohen_kappa_score(np.argmax(logits, 1), train_label)))
-            #print("Epoch {}, Loss {:.6f}".format(epoch, np.mean(all_loss)))
-
-            #print logits
-    
+            
+        saver.save(sess, "../checkpoints/model_epoch_" + str(epoch) + ".ckpt" )
+        
 def main(argv):
-    train_loop()
+    file_path = "../data/BCICIV_2a_gdf/A09T.gdf"
+    train_loop(file_path)
     
 if __name__ == "__main__":
     tf.app.run()
