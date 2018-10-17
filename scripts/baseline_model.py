@@ -4,7 +4,13 @@
 Created on Wed Sep 19 17:01:57 2018
 
 @author: shayan
+from numpy.random import RandomState
 """
+import pandas as pd
+from collections import OrderedDict, Counter
+import scipy
+import scipy.signal
+import logging
 import numpy as np
 import tensorflow as tf
 from datetime import datetime
@@ -20,11 +26,11 @@ def load_data(file_path, test_file_path):
     event_id_2 = dict(cue_unknown = 783)
         
     #tmin, tmax = -1., 4.
-    tmin, tmax = 0.5, 4.
+    tmin, tmax = -0.5, 4
     
     
     raw = read_raw_edf(file_path, eog= [22, 23, 24], stim_channel="auto", preload=True)
-    raw.filter(0.5, 100.)
+    raw.filter(0.5, 38.)
     events = find_edf_events(raw)
     events = np.stack((events[1], events[3], events[2]), 1).astype(np.int64)
     picks = pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False,
@@ -61,7 +67,7 @@ def load_data(file_path, test_file_path):
 # =============================================================================
     
     indices = np.arange(labels.shape[0])
-    np.random.shuffle(indices)
+    #np.random.shuffle(indices)
     
     return epochs_train.get_data()[:, :, :, np.newaxis][indices], labels[indices]
     
@@ -147,22 +153,24 @@ def load_data(file_path, test_file_path):
 # =============================================================================
 # =============================================================================
 
-def brain_model(features, num_classes=4):
-    batch0 = tf.layers.batch_normalization(features)
+def shallow_brain_model(features, mode):
+    print features
     
-    conv1 = tf.layers.conv2d(inputs=batch0, filters = 40, kernel_size=(1, 25), strides=1, activation=None)
-    batch1 = tf.layers.batch_normalization(conv1)
+    conv1 = tf.layers.conv2d(inputs=features, filters = 40, kernel_size=(1, 25), strides=1, activation=None)
     print conv1
-    conv2 = tf.layers.conv2d(inputs=batch1, filters = 40, kernel_size=(22, 1), strides=1, activation=tf.nn.elu)
-    batch2 = tf.layers.batch_normalization(conv2)
-    print conv2
     
-    pool2 = tf.layers.max_pooling2d(inputs=batch2, pool_size=(1, 80), strides=15)
+    conv2 = tf.layers.conv2d(inputs=conv1, filters = 40, kernel_size=(22, 1), strides=1, activation=None)
+    batch2 = tf.layers.batch_normalization(conv2, momentum=0.1)
+    activation2 = tf.nn.elu(batch2)
+    pool2 = tf.layers.max_pooling2d(inputs=activation2, pool_size=(1, 80), strides=15)
+    dropout2 = tf.layers.dropout(pool2, 0.5, training=mode)
+    print dropout2
     
-    print pool2
-    conv3 = tf.layers.conv2d(inputs=pool2, filters = 4, kernel_size=(1, 52), strides=1, activation=None)
+    conv3 = tf.layers.conv2d(inputs=dropout2, filters = 4, kernel_size=(1, 60), strides=1, activation=None)
     print conv3
+    
     logits = tf.reshape(conv3, [-1, 4])
+    print logits
     
     return logits
 
@@ -198,31 +206,33 @@ def brain_model(features, num_classes=4):
 
 def train_loop(file_path, test_file_path, mode):
     data, labels = load_data(file_path, test_file_path)
-    ##data *= 10**6
+    data *= 10**6
     
-    epoch_number = 1000
-    batch_size = 72
-    
-    
-    sc = StandardScaler()
-    data = sc.fit_transform(data.reshape((288, -1)))
-    data = data.reshape((288, 22, 876, 1))
-    
-    test_data = data[:batch_size, :, :, :]
-    test_labels = labels[:batch_size]
-    
-    data = data[2*batch_size:, :, :, :]
-    labels = labels[2*batch_size:]
+    epoch_number = 200
+    batch_size = 60
     
     
-    num_batches = data.shape[0] / batch_size
+    #sc = StandardScaler()
+    #data = sc.fit_transform(data.reshape((288, -1)))
+    #data = data.reshape((288, 22, 1126, 1))
+    
+    #test_data = data[:batch_size, :, :, :]
+    #test_labels = labels[:batch_size]
+    
+    #data = data[2*batch_size:, :, :, :]
+    #labels = labels[2*batch_size:]
+    
+    
+    #num_batches = data.shape[0] / batch_size
     
     
     
-    d = tf.placeholder(tf.float32, [batch_size, 22, 876, 1])
-    l = tf.placeholder(tf.int32, [batch_size])
-
-    model = brain_model(d, 4)
+    #d = tf.placeholder(tf.float32, [None, 22, 1126, 1])
+    d = tf.placeholder(tf.float32, shape=[None, None, None, 1])
+    #l = tf.placeholder(tf.int32, [None])
+    l = tf.placeholder(tf.int32, shape=[None])
+    m = tf.placeholder(tf.bool)
+    model = shallow_brain_model(d, m)
     loss = tf.losses.sparse_softmax_cross_entropy(labels=l, logits=model)
     
     
@@ -249,37 +259,52 @@ def train_loop(file_path, test_file_path, mode):
             
             for epoch in range(0, epoch_number):
                 all_loss = []
+                all_targets = []
                 all_pred_labels = []
                 test_pred = []
+                all_test_labels = []
                     
-                for step in range(num_batches):
-                    train_data = data[step*batch_size: (step+1)*batch_size]
-                    train_label = labels[step*batch_size: (step+1)*batch_size]
-                    
-                    _, ret_loss, logits = sess.run([train_op, loss, model], feed_dict={d: train_data, lr:0.005, l:train_label})
-                        
+                
+                batch_generator = iterator.get_batches(train_set, shuffle=True)
+                batch_generator_2 = iterator.get_batches(valid_set, shuffle=True)
+
+                #for step in range(num_batches):
+                for inputs, targets in batch_generator:
+                    #train_data = data[step*batch_size: (step+1)*batch_size]
+                    #train_label = labels[step*batch_size: (step+1)*batch_size]
+                    train_data = inputs
+                    train_label = targets
+
+                    _, ret_loss, logits = sess.run([train_op, loss, model], feed_dict={d: train_data, m:True, lr:0.005, l:train_label})
+
                     prediction = tf.argmax(logits, 1)
                     all_pred_labels.extend(prediction.eval())
                 
                     all_loss.append(ret_loss)
+                    all_targets.extend(train_label)
                     
-                accuracy = np.sum(np.equal(all_pred_labels, labels)) / float(len(all_pred_labels))
+                #accuracy = np.sum(np.equal(all_pred_labels, labels)) / float(len(all_pred_labels))
+                accuracy = np.sum(np.equal(all_pred_labels, all_targets)) / float(len(all_pred_labels))
                 
-                
-                print("Epoch {}, Loss {:.6f}, accuracy {}, Kappa {}".format(epoch, np.mean(all_loss), accuracy, cohen_kappa_score(all_pred_labels, labels)))
+                print("Epoch {}, Loss {:.6f}, accuracy {}, Kappa {}".format(epoch, np.mean(all_loss), accuracy, cohen_kappa_score(all_pred_labels, all_targets)))
               
-                for step in range(1):
+                #for step in range(1):
+                for inputs, targets in batch_generator_2:
                     #t_data = test_data[step*batch_size: (step+1)*batch_size]
-                    # test_label = labels[step*batch_size: (step+1)*batch_size]
-                
-                    ret_loss, logits = sess.run([loss, model], feed_dict={d: test_data, l:test_labels})
-                    
+                    #test_label = labels[step*batch_size: (step+1)*batch_size]
+                    test_data = inputs
+                    test_labels = targets
+
+                    ret_loss, logits = sess.run([loss, model], feed_dict={d: test_data, m: False, l:test_labels})
+
                     prediction = tf.argmax(logits, 1)
                     test_pred.extend(prediction.eval())
-
-                accuracy = np.sum(np.equal(test_pred, test_labels)) / float(len(test_pred))
+                    all_test_labels.extend(test_labels)
+                    
+                #accuracy = np.sum(np.equal(test_pred, test_labels)) / float(len(test_pred))
+                accuracy = np.sum(np.equal(test_pred, all_test_labels)) / float(len(test_pred))
                 
-                print("Loss {}, Accuracy: {}, Kappa: {}".format(ret_loss, accuracy, cohen_kappa_score(test_pred, test_labels)))
+                print("Loss {}, Accuracy: {}, Kappa: {}".format(ret_loss, accuracy, cohen_kappa_score(test_pred, all_test_labels)))
 
             print("{} Done training...".format(datetime.now()))
             
@@ -304,13 +329,6 @@ def train_loop(file_path, test_file_path, mode):
 
 def main(argv):
     test_file_path = ["../data/BCICIV_2a_gdf/A03E.gdf", "../data/true_labels/A03E.mat"]
-# =============================================================================
-#     file_path = ["../data/BCICIV_2a_gdf/A01T.gdf", "../data/BCICIV_2a_gdf/A02T.gdf", 
-#                  "../data/BCICIV_2a_gdf/A03T.gdf", "../data/BCICIV_2a_gdf/A04T.gdf", 
-#                  "../data/BCICIV_2a_gdf/A05T.gdf", "../data/BCICIV_2a_gdf/A06T.gdf", 
-#                  "../data/BCICIV_2a_gdf/A07T.gdf", "../data/BCICIV_2a_gdf/A08T.gdf", 
-#                  "../data/BCICIV_2a_gdf/A09T.gdf"]
-# =============================================================================
     file_path = "../data/BCICIV_2a_gdf/A03T.gdf"
     mode = 'train'
     train_loop(file_path, test_file_path, mode)
@@ -321,19 +339,39 @@ if __name__ == "__main__":
     
     
     
+########################
+train_loader = BCICompetition4Set2A("../data/BCICIV_2a_gdf/A03T.gdf", labels_filename="../data/true_labels/A03T.mat")
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+train_cnt = train_loader.load()
+
+ train_cnt = train_cnt.drop_channels(['STI 014', 'EOG-left',
+                                     'EOG-central', 'EOG-right'])
+assert len(train_cnt.ch_names) == 22
+# lets convert to millvolt for numerical stability of next operations
+train_cnt = mne_apply(lambda a: a * 1e6, train_cnt)
+train_cnt = mne_apply(
+    lambda a: bandpass_cnt(a, 0, 38.0, train_cnt.info['sfreq'],
+                           filt_order=3,
+                           axis=1), train_cnt)
+train_cnt = mne_apply(
+    lambda a: exponential_running_standardize(a.T, factor_new=1e-3,
+                                              init_block_size=1000,
+                                              eps=1e-4).T,
+    train_cnt)
+
+marker_def = OrderedDict([('Left Hand', [1]), ('Right Hand', [2],),
+                          ('Foot', [3]), ('Tongue', [4])])
+ival = [-500, 4000]
+train_set = create_signal_target_from_raw_mne(train_cnt, marker_def, ival)
+
+   train_set, valid_set = split_into_two_sets(
+    train_set, first_set_fraction=1-0.2)
+
+iterator = CropsFromTrialsIterator(batch_size=60,
+                               input_time_length=1000,
+                               n_preds_per_input=4)
+
+batch_generator = iterator.get_batches(train_set, shuffle=True)
+batch_generator_2 = iterator.get_batches(valid_set, shuffle=True)
+
+log = logging.getLogger(__name__)
