@@ -86,7 +86,7 @@ def shallow_brain_model(features, mode):
     return logits
 
 def train_loop(filename, labels_filename):
-    epoch_number = 200
+    epoch_number = 20
 
     #batch_size = 60
     #data, labels = load_data(filename)
@@ -181,9 +181,7 @@ def train_loop(filename, labels_filename):
 
         print("{} Done training...".format(datetime.now()))
         
-# =============================================================================
-#         saver.save(sess, "../checkpoints/model_3_epoch_" + str(epoch) + ".ckpt" )
-# =============================================================================
+        saver.save(sess, "../checkpoints/model_epoch_" + str(epoch) + ".ckpt" )
 
 def main(argv):
     file_path = "../data/BCICIV_2a_gdf/A03T.gdf"
