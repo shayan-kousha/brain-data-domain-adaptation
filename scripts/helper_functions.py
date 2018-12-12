@@ -481,10 +481,15 @@ class SignalAndTarget(object):
     y: 1darray or list
         Labels for each trial.
     """
-    def __init__(self, X, y):
+    def __init__(self, X, y, z=None):
         assert len(X) == len(y)
         self.X = X
         self.y = y
+        if type(z) != 'NoneType':
+            assert len(X) == len(y)
+            self.z = z
+        else:
+            self.z = None
         
 class CropsFromTrialsIterator(object):
     """
@@ -546,11 +551,11 @@ class CropsFromTrialsIterator(object):
             assert trial_blocks[0][0] == 0
             assert trial_blocks[-1][1] == i_trial_stops[i_trial]
 
-        return self._yield_block_batches(dataset.X, dataset.y,
+        return self._yield_block_batches(dataset.X, dataset.y, dataset.z,
                                         start_stop_blocks_per_trial,
                                         shuffle=shuffle)
 
-    def _yield_block_batches(self, X, y, start_stop_blocks_per_trial, shuffle):
+    def _yield_block_batches(self, X, y, z, start_stop_blocks_per_trial, shuffle):
         # add trial nr to start stop blocks and flatten at same time
         i_trial_start_stop_block = [(i_trial, start, stop)
                                       for i_trial, block in
@@ -567,7 +572,7 @@ class CropsFromTrialsIterator(object):
         for i_blocks in blocks_per_batch:
             start_stop_blocks = i_trial_start_stop_block[i_blocks]
             batch = _create_batch_from_i_trial_start_stop_blocks(
-                X, y, start_stop_blocks, self.n_preds_per_input)
+                X, y, z, start_stop_blocks, self.n_preds_per_input)
             yield batch
             
 def split_into_two_sets(dataset, first_set_fraction=None, n_first_set=None):
@@ -591,11 +596,11 @@ def split_into_two_sets(dataset, first_set_fraction=None, n_first_set=None):
     if n_first_set is None:
         n_first_set = int(round(len(dataset.X) * first_set_fraction))
     assert n_first_set < len(dataset.X)
-    first_set = apply_to_X_y(lambda a: a[:n_first_set], dataset)
-    second_set = apply_to_X_y(lambda a: a[n_first_set:], dataset)
+    first_set = apply_to_X_y_z(lambda a: a[:n_first_set], dataset)
+    second_set = apply_to_X_y_z(lambda a: a[n_first_set:], dataset)
     return first_set, second_set
 
-def apply_to_X_y(fn, *sets):
+def apply_to_X_y_z(fn, *sets):
     """
     Apply a function to all `X` and `y` attributes of all given sets.
     
@@ -612,9 +617,13 @@ def apply_to_X_y(fn, *sets):
         Dataset with X and y as the result of the
         application of the function.
     """
+    z = None
     X = fn(*[s.X for s in sets])
     y = fn(*[s.y for s in sets])
-    return SignalAndTarget(X,y)
+    
+    if type(sets[0].z) == np.ndarray:
+        z = fn(*[s.z for s in sets])
+    return SignalAndTarget(X,y,z)
 
 def _compute_start_stop_block_inds(i_trial_starts, i_trial_stops,
                                    input_time_length, n_preds_per_input,
@@ -738,20 +747,27 @@ def get_balanced_batches(n_trials, rng, shuffle, n_batches=None,
     assert i_start_trial == n_trials
     return batches
 
-def _create_batch_from_i_trial_start_stop_blocks(X, y, i_trial_start_stop_block,
+def _create_batch_from_i_trial_start_stop_blocks(X, y, z, i_trial_start_stop_block,
                                                  n_preds_per_input=None):
     Xs = []
     ys = []
+    zs = []
     for i_trial, start, stop in i_trial_start_stop_block:
         Xs.append(X[i_trial][:,start:stop])
         if not hasattr(y[i_trial], '__len__'):
             ys.append(y[i_trial])
+            if type(z) == np.ndarray:
+                zs.append(z[i_trial])
         else:
             assert n_preds_per_input is not None
             ys.append(y[i_trial][stop-n_preds_per_input:stop])
+            if type(z) == np.ndarray:
+                zs.append(z[i_trial][stop-n_preds_per_input:stop])
+            
     batch_X = np.array(Xs)
     batch_y = np.array(ys)
+    batch_z = np.array(zs)
     # add empty fourth dimension if necessary
     if batch_X.ndim == 3:
         batch_X = batch_X[:,:,:, None]
-    return batch_X, batch_y
+    return batch_X, batch_y, batch_z

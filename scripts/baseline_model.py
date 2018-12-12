@@ -37,9 +37,7 @@ def load_data(file_path):
     
     return epochs_train.get_data()[:, :, :, np.newaxis][indices], labels[indices]
 
-def BCI_load_data(filename, labels_filename):
-    ival = [-500, 4000]
-    
+def BCI_read_data(filename, labels_filename):    
     train_loader = BCICompetition4Set2A(filename=filename, labels_filename=labels_filename)
     train_cnt = train_loader.load()
     train_cnt = train_cnt.drop_channels(['STI 014', 'EOG-left', 'EOG-central', 'EOG-right'])
@@ -53,35 +51,54 @@ def BCI_load_data(filename, labels_filename):
                                                   init_block_size=1000,
                                                   eps=1e-4).T, train_cnt)
     
+    return train_cnt
+
+def BCI_load_data(filename, labels_filename):
+    ival = [-500, 4000]
     marker_def = OrderedDict([('Left Hand', [1]), ('Right Hand', [2],),
                               ('Foot', [3]), ('Tongue', [4])])
     
+    train_cnt = BCI_read_data(filename, labels_filename)
     train_set = hf.create_signal_target_from_raw_mne(train_cnt, marker_def, ival)
     
     train_set, valid_set = hf.split_into_two_sets(train_set, first_set_fraction=1-0.2)
     
-    iterator = hf.CropsFromTrialsIterator(batch_size=60, input_time_length=1000, n_preds_per_input=4)
+    iterator = hf.CropsFromTrialsIterator(batch_size=60, input_time_length=1125, n_preds_per_input=4)
     
     return iterator, train_set, valid_set
 
-def shallow_brain_model(features, mode):
-    print features
+def BCI_load_all_data():
+    ival = [-500, 4000]
+    marker_def = OrderedDict([('Left Hand', [1]), ('Right Hand', [2],),
+                              ('Foot', [3]), ('Tongue', [4])])
     
+    raw_files = [BCI_read_data("../data/BCICIV_2a_gdf/A0" + str(f) + "T.gdf", 
+                               "../data/true_labels/A0" + str(f) + "T.mat") for f in range(1, 10)]
+    
+    train_set_list = [hf.create_signal_target_from_raw_mne(raw, marker_def, ival) for raw in raw_files]
+    
+    train_set_X = np.concatenate([train_set.X for train_set in train_set_list[:-1]])
+    train_set_y = np.concatenate([train_set.y for train_set in train_set_list[:-1]])
+    
+    train_set = hf.SignalAndTarget(train_set_X, train_set_y)
+    valid_set = train_set_list[-1]
+    
+    iterator = hf.CropsFromTrialsIterator(batch_size=60, input_time_length=1125, n_preds_per_input=4)
+    
+    return iterator, train_set, valid_set
+    
+def shallow_brain_model(features, mode):
     conv1 = tf.layers.conv2d(inputs=features, filters = 40, kernel_size=(1, 25), strides=1, activation=None)
-    print conv1
     
     conv2 = tf.layers.conv2d(inputs=conv1, filters = 40, kernel_size=(22, 1), strides=1, activation=None)
     batch2 = tf.layers.batch_normalization(conv2, momentum=0.1)
     activation2 = tf.nn.elu(batch2)
     pool2 = tf.layers.max_pooling2d(inputs=activation2, pool_size=(1, 80), strides=15)
     dropout2 = tf.layers.dropout(pool2, 0.5, training=mode)
-    print dropout2
     
-    conv3 = tf.layers.conv2d(inputs=dropout2, filters = 4, kernel_size=(1, 60), strides=1, activation=None)
-    print conv3
+    conv3 = tf.layers.conv2d(inputs=dropout2, filters = 4, kernel_size=(1, 69), strides=1, activation=None)
     
     logits = tf.reshape(conv3, [-1, 4])
-    print logits
     
     return logits
 
@@ -100,7 +117,9 @@ def train_loop(filename, labels_filename):
     #labels = labels[2*batch_size:]
     #num_batches = data.shape[0] / batch_size
     
-    iterator, train_set, valid_set = BCI_load_data(filename, labels_filename)
+    #iterator, train_set, valid_set = BCI_load_data(filename, labels_filename)
+    iterator, train_set, valid_set = BCI_load_all_data()
+    
     
     #d = tf.placeholder(tf.float32, [None, 22, 1126, 1])
     d = tf.placeholder(tf.float32, shape=[None, None, None, 1])
@@ -142,7 +161,7 @@ def train_loop(filename, labels_filename):
             batch_generator_2 = iterator.get_batches(valid_set, shuffle=True)
 
             #for step in range(num_batches):
-            for inputs, targets in batch_generator:
+            for inputs, targets, _ in batch_generator:
                 #train_data = data[step*batch_size: (step+1)*batch_size]
                 #train_label = labels[step*batch_size: (step+1)*batch_size]
                 train_data = inputs
@@ -162,7 +181,7 @@ def train_loop(filename, labels_filename):
             print("Epoch {}, Loss {:.6f}, accuracy {}, Kappa {}".format(epoch, np.mean(all_loss), accuracy, cohen_kappa_score(all_pred_labels, all_targets)))
           
             #for step in range(1):
-            for inputs, targets in batch_generator_2:
+            for inputs, targets, _ in batch_generator_2:
                 #t_data = test_data[step*batch_size: (step+1)*batch_size]
                 #test_label = labels[step*batch_size: (step+1)*batch_size]
                 test_data = inputs
@@ -178,10 +197,13 @@ def train_loop(filename, labels_filename):
             accuracy = np.sum(np.equal(test_pred, all_test_labels)) / float(len(test_pred))
             
             print("Loss {}, Accuracy: {}, Kappa: {}".format(ret_loss, accuracy, cohen_kappa_score(test_pred, all_test_labels)))
-
+            
+            saver.save(sess, "../checkpoints/model_epoch_" + str(epoch) + ".ckpt" )
+            
+            
         print("{} Done training...".format(datetime.now()))
         
-        saver.save(sess, "../checkpoints/model_epoch_" + str(epoch) + ".ckpt" )
+        #saver.save(sess, "../checkpoints/model_epoch_" + str(epoch) + ".ckpt" )
 
 def main(argv):
     file_path = "../data/BCICIV_2a_gdf/A03T.gdf"
