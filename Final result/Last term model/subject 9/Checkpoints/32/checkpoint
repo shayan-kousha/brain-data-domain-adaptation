@@ -1,0 +1,6 @@
+model_checkpoint_path: "/content/gdrive/My Drive/checkpoints/baseline_model/32/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/baseline_model/28/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/baseline_model/29/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/baseline_model/30/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/baseline_model/31/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/baseline_model/32/model.ckpt"

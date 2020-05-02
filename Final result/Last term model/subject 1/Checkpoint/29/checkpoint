@@ -1,0 +1,6 @@
+model_checkpoint_path: "/content/gdrive/My Drive/checkpoints/last_term_model/1/29/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/last_term_model/1/25/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/last_term_model/1/26/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/last_term_model/1/27/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/last_term_model/1/28/model.ckpt"
+all_model_checkpoint_paths: "/content/gdrive/My Drive/checkpoints/last_term_model/1/29/model.ckpt"

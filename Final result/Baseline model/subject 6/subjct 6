@@ -1,0 +1,122 @@
+2019-03-30 21:18:26.553734 Start training...
+Epoch 0 nodes 1588
+Class:    Loss 1.450914, Accuracy: 0.266413456321, Kappa 0.0214567936434
+Class:    Loss 1.357265, min_loss: 1.35726499557, Accuracy: 0.301518438178, Kappa: 0.040440083259
+TestC:    Loss 1.396356, Accuracy: 0.25, Max acc: 0.25, Kappa: 0.0
+Epoch 1 nodes 1588
+Class:    Loss 1.365282, Accuracy: 0.315789473684, Kappa 0.0875503285218
+Class:    Loss 1.327425, min_loss: 1.32742452621, Accuracy: 0.366594360087, Kappa: 0.151424987235
+TestC:    Loss 1.367258, Accuracy: 0.378472222222, Max acc: 0.378472222222, Kappa: 0.171296296296
+Epoch 2 nodes 1588
+Class:    Loss 1.307205, Accuracy: 0.396093326099, Kappa 0.194696029265
+Class:    Loss 1.266439, min_loss: 1.26643908024, Accuracy: 0.44251626898, Kappa: 0.255980004898
+TestC:    Loss 1.304584, Accuracy: 0.395833333333, Max acc: 0.395833333333, Kappa: 0.194444444444
+Epoch 3 nodes 1588
+Class:    Loss 1.255530, Accuracy: 0.428106348345, Kappa 0.237177861012
+Class:    Loss 1.192222, min_loss: 1.19222164154, Accuracy: 0.496746203905, Kappa: 0.330864135739
+TestC:    Loss 1.243755, Accuracy: 0.40625, Max acc: 0.40625, Kappa: 0.208333333333
+Epoch 4 nodes 1588
+Class:    Loss 1.185109, Accuracy: 0.478024959305, Kappa 0.303808159933
+Class:    Loss 1.117760, min_loss: 1.11776018143, Accuracy: 0.544468546638, Kappa: 0.389450183524
+TestC:    Loss 1.225715, Accuracy: 0.392361111111, Max acc: 0.40625, Kappa: 0.189814814815
+Epoch 5 nodes 1588
+Class:    Loss 1.080476, Accuracy: 0.542593597396, Kappa 0.389982139008
+Class:    Loss 1.082112, min_loss: 1.08211159706, Accuracy: 0.531453362256, Kappa: 0.379488266012
+TestC:    Loss 1.269796, Accuracy: 0.420138888889, Max acc: 0.420138888889, Kappa: 0.226851851852
+Epoch 6 nodes 1588
+Class:    Loss 1.010992, Accuracy: 0.565382528486, Kappa 0.420247469596
+Class:    Loss 1.010487, min_loss: 1.01048707962, Accuracy: 0.594360086768, Kappa: 0.457742580734
+TestC:    Loss 1.373936, Accuracy: 0.458333333333, Max acc: 0.458333333333, Kappa: 0.277777777778
+Epoch 7 nodes 1588
+Class:    Loss 0.966442, Accuracy: 0.603364080304, Kappa 0.471034218206
+Class:    Loss 0.981534, min_loss: 0.981534481049, Accuracy: 0.60737527115, Kappa: 0.479170827924
+TestC:    Loss 1.154554, Accuracy: 0.489583333333, Max acc: 0.489583333333, Kappa: 0.319444444444
+Epoch 8 nodes 1588
+Class:    Loss 0.896957, Accuracy: 0.638090070537, Kappa 0.517316484763
+Class:    Loss 0.987103, min_loss: 0.981534481049, Accuracy: 0.603036876356, Kappa: 0.471333588174
+TestC:    Loss 1.387902, Accuracy: 0.475694444444, Max acc: 0.489583333333, Kappa: 0.300925925926
+Epoch 9 nodes 1588
+Class:    Loss 0.871466, Accuracy: 0.642430819316, Kappa 0.523143240344
+Class:    Loss 0.973529, min_loss: 0.973528981209, Accuracy: 0.618221258134, Kappa: 0.489887145956
+TestC:    Loss 1.189935, Accuracy: 0.444444444444, Max acc: 0.489583333333, Kappa: 0.259259259259
+Epoch 10 nodes 1588
+Class:    Loss 0.820651, Accuracy: 0.663591969615, Kappa 0.551280742292
+Class:    Loss 0.939222, min_loss: 0.939222037792, Accuracy: 0.648590021692, Kappa: 0.531448217882
+TestC:    Loss 1.266990, Accuracy: 0.458333333333, Max acc: 0.489583333333, Kappa: 0.277777777778
+Epoch 11 nodes 1588
+Class:    Loss 0.782433, Accuracy: 0.6874660879, Kappa 0.583225007567
+Class:    Loss 0.924606, min_loss: 0.924606084824, Accuracy: 0.648590021692, Kappa: 0.529434744529
+TestC:    Loss 1.484872, Accuracy: 0.451388888889, Max acc: 0.489583333333, Kappa: 0.268518518519
+Epoch 12 nodes 1588
+Class:    Loss 0.771531, Accuracy: 0.684753119913, Kappa 0.579591984167
+Class:    Loss 0.978521, min_loss: 0.924606084824, Accuracy: 0.613882863341, Kappa: 0.485219944292
+TestC:    Loss 1.300637, Accuracy: 0.472222222222, Max acc: 0.489583333333, Kappa: 0.296296296296
+Epoch 13 nodes 1588
+Class:    Loss 0.760091, Accuracy: 0.690721649485, Kappa 0.587492887707
+Class:    Loss 0.984040, min_loss: 0.924606084824, Accuracy: 0.63557483731, Kappa: 0.514888819292
+TestC:    Loss 1.332933, Accuracy: 0.496527777778, Max acc: 0.496527777778, Kappa: 0.328703703704
+Epoch 14 nodes 1588
+Class:    Loss 0.715707, Accuracy: 0.720564297341, Kappa 0.627309523006
+Class:    Loss 0.949880, min_loss: 0.924606084824, Accuracy: 0.639913232104, Kappa: 0.518958537628
+TestC:    Loss 1.473192, Accuracy: 0.489583333333, Max acc: 0.496527777778, Kappa: 0.319444444444
+Epoch 15 nodes 1588
+Class:    Loss 0.657242, Accuracy: 0.737927292458, Kappa 0.650512824137
+Class:    Loss 0.977863, min_loss: 0.924606084824, Accuracy: 0.633405639913, Kappa: 0.511554569164
+TestC:    Loss 1.410831, Accuracy: 0.5, Max acc: 0.5, Kappa: 0.333333333333
+Epoch 16 nodes 1588
+Class:    Loss 0.667049, Accuracy: 0.743895822029, Kappa 0.658463175377
+Class:    Loss 0.951812, min_loss: 0.924606084824, Accuracy: 0.631236442516, Kappa: 0.506601106795
+TestC:    Loss 1.359521, Accuracy: 0.458333333333, Max acc: 0.5, Kappa: 0.277777777778
+Epoch 17 nodes 1588
+Class:    Loss 0.655961, Accuracy: 0.744981009224, Kappa 0.659933463621
+Class:    Loss 0.954463, min_loss: 0.924606084824, Accuracy: 0.648590021692, Kappa: 0.53127177099
+TestC:    Loss 1.818118, Accuracy: 0.5, Max acc: 0.5, Kappa: 0.333333333333
+Epoch 18 nodes 1588
+Class:    Loss 0.593692, Accuracy: 0.770482908302, Kappa 0.693922933921
+Class:    Loss 0.956551, min_loss: 0.924606084824, Accuracy: 0.642082429501, Kappa: 0.521787238858
+TestC:    Loss 1.582289, Accuracy: 0.465277777778, Max acc: 0.5, Kappa: 0.287037037037
+Epoch 19 nodes 1588
+Class:    Loss 0.590719, Accuracy: 0.767769940315, Kappa 0.690313269624
+Class:    Loss 1.026039, min_loss: 0.924606084824, Accuracy: 0.633405639913, Kappa: 0.511652542373
+TestC:    Loss 1.902791, Accuracy: 0.447916666667, Max acc: 0.5, Kappa: 0.263888888889
+Epoch 20 nodes 1588
+Class:    Loss 0.609595, Accuracy: 0.765056972328, Kappa 0.686698263062
+Class:    Loss 0.976460, min_loss: 0.924606084824, Accuracy: 0.644251626898, Kappa: 0.525556468971
+TestC:    Loss 1.590907, Accuracy: 0.461805555556, Max acc: 0.5, Kappa: 0.282407407407
+Epoch 21 nodes 1588
+Class:    Loss 0.558631, Accuracy: 0.783505154639, Kappa 0.711310203822
+Class:    Loss 0.997588, min_loss: 0.924606084824, Accuracy: 0.639913232104, Kappa: 0.519064348067
+TestC:    Loss 1.821514, Accuracy: 0.454861111111, Max acc: 0.5, Kappa: 0.273148148148
+Epoch 22 nodes 1588
+Class:    Loss 0.559029, Accuracy: 0.781877373847, Kappa 0.709156388415
+Class:    Loss 1.011570, min_loss: 0.924606084824, Accuracy: 0.637744034707, Kappa: 0.516170186023
+TestC:    Loss 1.409415, Accuracy: 0.447916666667, Max acc: 0.5, Kappa: 0.263888888889
+Epoch 23 nodes 1588
+Class:    Loss 0.541671, Accuracy: 0.798697775366, Kappa 0.731575248893
+Class:    Loss 1.030009, min_loss: 0.924606084824, Accuracy: 0.661605206074, Kappa: 0.547695268524
+TestC:    Loss 1.810684, Accuracy: 0.451388888889, Max acc: 0.5, Kappa: 0.268518518519
+Epoch 24 nodes 1588
+Class:    Loss 0.561251, Accuracy: 0.775366250678, Kappa 0.70045426404
+Class:    Loss 0.997646, min_loss: 0.924606084824, Accuracy: 0.618221258134, Kappa: 0.491386875956
+TestC:    Loss 1.813985, Accuracy: 0.472222222222, Max acc: 0.5, Kappa: 0.296296296296
+Epoch 25 nodes 1588
+Class:    Loss 0.517907, Accuracy: 0.805208898535, Kappa 0.740249191367
+Class:    Loss 1.002287, min_loss: 0.924606084824, Accuracy: 0.644251626898, Kappa: 0.525467132806
+TestC:    Loss 1.982966, Accuracy: 0.454861111111, Max acc: 0.5, Kappa: 0.273148148148
+Epoch 26 nodes 1588
+Class:    Loss 0.482664, Accuracy: 0.812805208899, Kappa 0.750389724694
+Class:    Loss 1.030489, min_loss: 0.924606084824, Accuracy: 0.63557483731, Kappa: 0.513990775313
+TestC:    Loss 2.061488, Accuracy: 0.472222222222, Max acc: 0.5, Kappa: 0.296296296296
+Epoch 27 nodes 1588
+Class:    Loss 0.501027, Accuracy: 0.820401519262, Kappa 0.760484799656
+Class:    Loss 1.020525, min_loss: 0.924606084824, Accuracy: 0.624728850325, Kappa: 0.498648444769
+TestC:    Loss 1.505470, Accuracy: 0.409722222222, Max acc: 0.5, Kappa: 0.212962962963
+Epoch 28 nodes 1588
+Class:    Loss 0.483232, Accuracy: 0.814975583288, Kappa 0.753261091047
+Class:    Loss 1.052469, min_loss: 0.924606084824, Accuracy: 0.655097613883, Kappa: 0.538486239399
+TestC:    Loss 1.958012, Accuracy: 0.465277777778, Max acc: 0.5, Kappa: 0.287037037037
+Epoch 29 nodes 1588
+Class:    Loss 0.510540, Accuracy: 0.799782962561, Kappa 0.732982134731
+Class:    Loss 1.034201, min_loss: 0.924606084824, Accuracy: 0.639913232104, Kappa: 0.520146979521
+TestC:    Loss 2.195770, Accuracy: 0.475694444444, Max acc: 0.5, Kappa: 0.300925925926
+2019-03-30 21:21:29.296623 Done training...
